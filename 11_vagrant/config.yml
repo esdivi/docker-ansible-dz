@@ -1,0 +1,42 @@
+---
+- name: Установка Docker
+  hosts: cluster
+  tasks: 
+    - name: Добавляем universe репозиторий
+      apt_repository:
+        repo: "deb http://us.archive.ubuntu.com/ubuntu/ {{ ansible_distribution_release }} universe"
+        state: present
+
+    - name: Установка дополнительных пакетов
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+        update_cache: yes
+        cache_valid_time: 86400
+    - name: Добавление стабильного репозитория Docker
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+        state: present
+
+    - name: Добавление ключа GPG Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+        keyring: /usr/share/keyrings/docker-arhive-keyring.gpg
+        
+     
+    - name: Установка docker-ce
+      apt:
+        name: docker-ce
+        update_cache: yes
+
+    - name: Перезагрузка сервиса Docker
+      service:
+        name: docker
+        state: restarted
+        enabled: yes
+...
